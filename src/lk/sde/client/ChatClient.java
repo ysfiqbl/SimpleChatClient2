@@ -4,6 +4,9 @@
 
 package lk.sde.client;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.io.IOException;
 import lk.sde.common.ChatClientCommandFilter;
 import lk.sde.common.ChatIF;
@@ -36,6 +39,9 @@ public class ChatClient extends AbstractClient
   String loginId;
   private boolean isQuit = false;   // Variable used to determine whether the quit() or logoff() called closeConnection()
                                     // Used strickly to determine which message to write to console.
+
+  private List<String> monitors = new ArrayList<String>();
+  private boolean monitorOn = false;
   //Constructors ****************************************************
   
   /**
@@ -66,6 +72,14 @@ public class ChatClient extends AbstractClient
   public void handleMessageFromServer(Object msg) 
   {
     clientUI.display(msg.toString());
+    if (msg.toString().startsWith("Private Message") && this.monitorOn && !this.monitors.isEmpty()) {
+            try {
+                System.out.println(getMonitorListAsString());
+                this.sendToServer("#forward" + "#x" + getMonitorListAsString() + "#x" + msg.toString());
+            } catch (IOException ex) {
+                System.out.println("Exception occurred forwaring message.");
+            }
+    }
   }
 
     public boolean isIsQuit() {
@@ -240,9 +254,77 @@ public class ChatClient extends AbstractClient
             this.quit();            
             return;
         }
+
+        if (MONITOR.equals(command)) {
+            processMonitorCommand(inputArray);
+            return;
+        }
+        
         //this.sendToServer("#"+input);
         this.sendToServer("#"+input);
 
+    }
+
+        private void processMonitorCommand(String[] inputArray) {
+        if (inputArray.length == 1) {
+            clientUI.display("Invalid #monitor command. Options available add <user>, remove <user>"
+                    + "list, start, stop");
+            return;
+        }
+
+        String option = inputArray[1];
+        if (option.equals("add")) {
+            if (inputArray.length < 3) {
+                clientUI.display("Invalid #monitor add command. Usage #monitor add <userId>");
+                return;
+            }
+            String loginID = inputArray[2];
+            this.monitors.add(loginID);
+            return;
+        } else if (option.equals("remove")) {
+            if (inputArray.length < 3) {
+                clientUI.display("Invalid #monitor add command. Usage #monitor add <userId>");
+                return;
+            }
+            String loginID = inputArray[2];
+            this.monitors.remove(loginID);
+            return;
+        } else if (option.equals("list")) {
+            if (monitors.isEmpty()) {
+                clientUI.display("monitor list is empty");
+                return;
+            } else {
+                StringBuilder monitorList = new StringBuilder();
+                for (Iterator<String> it = monitors.iterator(); it.hasNext();) {
+                    monitorList.append(it.next().toString() + ",");
+                }
+                monitorList.deleteCharAt(monitorList.length()-1);
+                clientUI.display("monitor list is : " + monitorList);
+                return;
+            }
+        } else if (option.equals("start")) {
+            this.monitorOn = true;
+            clientUI.display("monitoring started.");
+            return;
+        } else if (option.equals("stop")) {
+            this.monitorOn = false;
+            clientUI.display("monitoring stopped.");
+            return;
+        }
+    }
+
+    private String getMonitorListAsString() {
+        if (this.monitors.size()==1) {
+            return this.monitors.get(0);
+        }
+
+        StringBuilder monitorsStr = new StringBuilder();
+        for (String monitor : this.monitors) {
+            monitorsStr.append(monitor);
+            monitorsStr.append(",");
+        }
+        monitorsStr.deleteCharAt(monitorsStr.length()-1);
+        return monitorsStr.toString();
     }
 
 }

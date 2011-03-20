@@ -33,6 +33,7 @@ public class ChatClientCommandFilter {
     public final static String GET_PORT = "getport";
     public final static String MSG = "msg";
     public final static String CHANNEL = "channel";
+    public final static String MONITOR = "monitor";
 
 
     /**
