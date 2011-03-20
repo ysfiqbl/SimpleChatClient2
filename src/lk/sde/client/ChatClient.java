@@ -165,20 +165,15 @@ public class ChatClient extends AbstractClient
         String command = inputArray[0];
         
         if(LOGIN.equals(command)){
-            //if(!isConnected()){
+            if(!isConnected()){
                 this.openConnection();
                 this.sendToServer("#login " + loginId);
-            //}
-            //else{
-              // clientUI.display("You are already logged in.");
-            //}
+            }
+            else{
+              clientUI.display("You are already logged in.");
+            }
             return;
-        }
-
-        if(MSG.equals(command)){            
-            this.sendToServer("#"+input);
-            return;
-        }
+        }        
 
         if(LOGOFF.equals(command)){
             if(isConnected()){
@@ -245,8 +240,9 @@ public class ChatClient extends AbstractClient
             this.quit();            
             return;
         }
+        //this.sendToServer("#"+input);
+        this.sendToServer("#"+input);
 
-        clientUI.display("#" + command +" is not a valid command");
     }
 
 }
