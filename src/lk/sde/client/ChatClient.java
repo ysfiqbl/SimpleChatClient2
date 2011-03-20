@@ -175,14 +175,8 @@ public class ChatClient extends AbstractClient
             return;
         }
 
-        if(MSG.equals(command)){
-            //if(!isConnected()){
-
-                this.sendToServer(input);
-            //}
-            //else{
-              // clientUI.display("You are already logged in.");
-            //}
+        if(MSG.equals(command)){            
+            this.sendToServer("#"+input);
             return;
         }
 
