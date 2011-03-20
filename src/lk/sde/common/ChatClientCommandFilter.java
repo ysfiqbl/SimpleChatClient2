@@ -31,6 +31,7 @@ public class ChatClientCommandFilter {
     public final static String LOGIN = "login";
     public final static String GET_HOST = "gethost";
     public final static String GET_PORT = "getport";
+    public final static String MSG = "msg";
 
 
     /**
